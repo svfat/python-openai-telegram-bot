@@ -1,0 +1,6 @@
+version: '3'
+
+services:
+  mybot:
+    build: .
+    env_file: .env
