@@ -5,20 +5,20 @@ import logging
 import openai
 from telegram import Update
 
-from config import TELEGRAM_TOKEN, OPENAI_API_KEY
+from config import TELEGRAM_TOKEN, OPENAI_API_KEY, OPENAI_MODEL_NAME, DEFAULT_BOT_COMMAND
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, \
     CallbackContext
 
 openai.api_key = OPENAI_API_KEY
+
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-CMD = "bot" # Command to trigger the bot
 
-def clean_command_header(text: str, header: str = f'/{CMD} ') -> str:
+def clean_command_header(text: str, header: str = f'/{DEFAULT_BOT_COMMAND} ') -> str:
     """
     Remove the command header from the text
     :param text:
@@ -39,7 +39,7 @@ def complete_prompt(prompt:str):
         prompt = '[...] ' + prompt[-1024:]
     try:
         r = openai.Completion.create(
-            model='text-davinci-003',
+            model=OPENAI_MODEL_NAME,
             prompt=prompt,
             temperature=0.6,
             max_tokens=900,
@@ -105,7 +105,7 @@ def main():
     dispatcher = updater.dispatcher
     dispatcher.add_error_handler(error)
 
-    dispatcher.add_handler(CommandHandler(CMD, complete_handler))
+    dispatcher.add_handler(CommandHandler(DEFAULT_BOT_COMMAND, complete_handler))
     dispatcher.add_handler(MessageHandler(Filters.text, reply_handler))
     updater.start_polling()
     updater.idle()
